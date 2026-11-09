@@ -24,10 +24,14 @@ jobs:
         run: |
           rm -rf fardin_app
           cordova create fardin_app com.fardin.music "FARDIN"
-          mkdir -p fardin_app/www
-          cp -r index.html css js fardin_app/www/
           cd fardin_app
           cordova platform add android
+          cd ..
+          # বর্তমান ফোল্ডার থেকে ফাইলগুলো কপি করে কর্ডোভা www ফোল্ডারে পাঠানো
+          rm -rf fardin_app/www/*
+          cp -r index.html fardin_app/www/ || true
+          cp -r css fardin_app/www/ || true
+          cp -r js fardin_app/www/ || true
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
