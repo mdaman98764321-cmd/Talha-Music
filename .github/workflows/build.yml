@@ -27,11 +27,11 @@ jobs:
           cd fardin_app
           cordova platform add android
           cd ..
-          # বর্তমান ফোল্ডার থেকে ফাইলগুলো কপি করে কর্ডোভা www ফোল্ডারে পাঠানো
+          # পরিষ্কার করে সঠিক জায়গায় ফাইল ও ফোল্ডারগুলো কপি করা
           rm -rf fardin_app/www/*
-          cp -r index.html fardin_app/www/ || true
-          cp -r css fardin_app/www/ || true
-          cp -r js fardin_app/www/ || true
+          cp index.html fardin_app/www/
+          cp -r css fardin_app/www/
+          cp -r js fardin_app/www/
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
