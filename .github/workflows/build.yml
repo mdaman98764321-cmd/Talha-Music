@@ -1,48 +1,45 @@
-
-name: Talha Music APK Build
+name: Build FARDIN APK
 
 on:
-  workflow_dispatch:
   push:
-    branches: [main]
-
-permissions:
-  contents: read
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Set up Java 21
-        uses: actions/setup-java@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          distribution: temurin
-          java-version: '21'
+          node-style: 18
 
-      - name: Extract project
+      - name: Install Cordova
+        run: npm install -g cordova
+
+      - name: Create Cordova Project
         run: |
-          unzip -q Talha-Music-Android-Project.zip -d source
-          cd source/Echo-Music-main
-          chmod +x gradlew
+          cordova create fardin_app com.fardin.music "FARDIN"
+          cp -r index.html css js fardin_app/www/
+          cd fardin_app
+          cordova platform add android
 
-      - name: Install Android NDK
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;28.2.13676358"
-
-      - name: Build APK
-        run: |
-          cd source/Echo-Music-main
-          ./gradlew assembleUniversalFossDebug --stacktrace
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
         with:
-          name: Talha-Universal-APK
-          path: source/Echo-Music-main/app/build/outputs/apk/**/*.apk
-          if-no-files-found: error
-          retention-days: 7
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Build Android APK
+        run: |
+          cd fardin_app
+          cordova build android
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: FARDIN-APK
+          path: fardin_app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
