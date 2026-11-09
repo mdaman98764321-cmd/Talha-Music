@@ -22,7 +22,9 @@ jobs:
 
       - name: Create Cordova Project
         run: |
+          rm -rf fardin_app
           cordova create fardin_app com.fardin.music "FARDIN"
+          mkdir -p fardin_app/www
           cp -r index.html css js fardin_app/www/
           cd fardin_app
           cordova platform add android
