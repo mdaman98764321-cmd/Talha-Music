@@ -20,18 +20,132 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-      - name: Create Cordova Project
+      - name: Create Cordova Project & Files
         run: |
           rm -rf fardin_app
           cordova create fardin_app com.fardin.music "FARDIN"
           cd fardin_app
           cordova platform add android
           cd ..
-          # পরিষ্কার করে সঠিক জায়গায় ফাইল ও ফোল্ডারগুলো কপি করা
+          
+          # ফোল্ডার নিশ্চিত করা
           rm -rf fardin_app/www/*
-          cp index.html fardin_app/www/
-          cp -r css fardin_app/www/
-          cp -r js fardin_app/www/
+          mkdir -p fardin_app/www/css
+          mkdir -p fardin_app/www/js
+
+          # সরাসরি সার্ভারের ভেতর index.html তৈরি করা
+          cat << 'EOF' > fardin_app/www/index.html
+          <!DOCTYPE html>
+          <html lang="bn">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>FARDIN</title>
+              <link rel="stylesheet" href="css/style.css">
+          </head>
+          <body>
+              <div class="app-container">
+                  <header class="header liquid-glass">
+                      <h1>FARDIN</h1>
+                      <button id="settings-btn" class="icon-btn">⚙️</button>
+                  </header>
+                  <main class="content">
+                      <div class="player-card liquid-glass">
+                          <div class="album-art">🎵</div>
+                          <h2 class="song-title">Liquid Vibes</h2>
+                          <p class="artist-name">FARDIN Studio</p>
+                          <div class="controls">
+                              <button class="btn">⏮️</button>
+                              <button class="btn play-btn">▶️</button>
+                              <button class="btn">⏭️</button>
+                          </div>
+                      </div>
+                  </main>
+                  <div id="settings-modal" class="modal hidden">
+                      <div class="modal-content liquid-glass">
+                          <div class="modal-header">
+                              <h3>Settings</h3>
+                              <button id="close-settings" class="close-btn">✖</button>
+                          </div>
+                          <div class="settings-list">
+                              <div class="settings-item avatar-option liquid-glass-item">
+                                  <div class="settings-info">
+                                      <span class="icon">👤</span>
+                                      <div>
+                                          <div class="item-title">Avatar</div>
+                                          <div class="item-sub">Manage 5 floating avatar speakers</div>
+                                      </div>
+                                  </div>
+                                  <label class="switch">
+                                      <input type="checkbox" id="avatar-toggle" checked>
+                                      <span class="slider"></span>
+                                  </label>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div id="floating-avatars-container" class="floating-container"></div>
+              </div>
+              <script src="js/app.js"></script>
+          </body>
+          </html>
+          EOF
+
+          # সরাসরি style.css তৈরি করা
+          cat << 'EOF' > fardin_app/www/css/style.css
+          :root {
+              --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #31103f 100%);
+              --glass-bg: rgba(255, 255, 255, 0.08);
+              --glass-border: rgba(255, 255, 255, 0.18);
+              --text-primary: #f8fafc;
+          }
+          * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+          body { background: var(--bg-gradient); color: var(--text-primary); min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+          .app-container { width: 100%; max-width: 420px; height: 100vh; display: flex; flex-direction: column; padding: 20px; position: relative; }
+          .liquid-glass { background: var(--glass-bg); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 28px; }
+          .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; margin-bottom: 20px; }
+          .header h1 { font-size: 24px; background: linear-gradient(90deg, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+          .content { flex: 1; display: flex; align-items: center; justify-content: center; }
+          .player-card { width: 100%; padding: 30px; text-align: center; }
+          .album-art { width: 180px; height: 180px; margin: 0 auto 24px; border-radius: 24px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 64px; }
+          .song-title { font-size: 22px; margin-bottom: 6px; }
+          .artist-name { color: #94a3b8; margin-bottom: 24px; }
+          .controls { display: flex; justify-content: center; gap: 20px; }
+          .btn { background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; }
+          .play-btn { width: 65px; height: 65px; background: rgba(56,189,248,0.2); }
+          .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; }
+          .modal.hidden { display: none; }
+          .modal-content { width: 90%; max-width: 380px; padding: 24px; }
+          .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+          .close-btn { background: none; border: none; color: white; cursor: pointer; }
+          .settings-list { display: flex; flex-direction: column; gap: 12px; }
+          .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 18px; background: rgba(255,255,255,0.05); }
+          .floating-container { position: fixed; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 12px; }
+          .floating-avatar { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; }
+          EOF
+
+          # সরাসরি app.js তৈরি করা
+          cat << 'EOF' > fardin_app/www/js/app.js
+          document.addEventListener('DOMContentLoaded', () => {
+              const settingsBtn = document.getElementById('settings-btn');
+              const closeSettings = document.getElementById('close-settings');
+              const settingsModal = document.getElementById('settings-modal');
+              const avatarContainer = document.getElementById('floating-avatars-container');
+
+              if(settingsBtn) settingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+              if(closeSettings) closeSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
+
+              if(avatarContainer) {
+                  for (let i = 1; i <= 5; i++) {
+                      const avatar = document.createElement('div');
+                      avatar.className = 'floating-avatar';
+                      avatar.innerHTML = `<span>🤖</span>`;
+                      avatar.addEventListener('click', () => alert(`FARDIN Avatar ${i} Activated`));
+                      avatarContainer.appendChild(avatar);
+                  }
+              }
+          });
+          EOF
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
